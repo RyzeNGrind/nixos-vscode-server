@@ -225,6 +225,52 @@ The goal of this project is to make VS Code server work with NixOS, anything mor
 }
 ```
 
+## Binary Cache
+
+A binary cache is available to speed up installation by avoiding local rebuilds. To use it, add the following to your Nix configuration:
+
+### For NixOS (configuration.nix)
+
+```nix
+{
+  nix = {
+    settings = {
+      substituters = [
+        "https://live-usb.cachix.org"
+      ];
+      trusted-public-keys = [
+        "live-usb.cachix.org-1:ERUPPct0ej0N1KCDXFngwg4pNuwgY9jnm4e0mbWa2u4="
+      ];
+    };
+  };
+}
+```
+
+### For non-NixOS or per-project use
+
+For non-NixOS systems or to use the cache for a specific project, you can add the following to your `~/.config/nix/nix.conf`:
+
+```
+substituters = https://live-usb.cachix.org
+trusted-public-keys = live-usb.cachix.org-1:ERUPPct0ej0N1KCDXFngwg4pNuwgY9jnm4e0mbWa2u4=
+```
+
+Or you can use it for a single command:
+
+```bash
+nix build github:nix-community/nixos-vscode-server \
+  --option substituters https://live-usb.cachix.org \
+  --option trusted-public-keys live-usb.cachix.org-1:ERUPPct0ej0N1KCDXFngwg4pNuwgY9jnm4e0mbWa2u4=
+```
+
+### With Cachix client
+
+If you have the Cachix client installed, you can enable the cache with:
+
+```bash
+cachix use live-usb
+```
+
 ## Troubleshooting
 
 This is not really an issue with this project per se, but with systemd user services in NixOS in general. After updating it can be necessary to first disable the service again:
