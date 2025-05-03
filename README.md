@@ -14,7 +14,7 @@ you'll have to manually enable the service for each user (see below).
 ```nix
 {
   imports = [
-    (fetchTarball "https://github.com/nix-community/nixos-vscode-server/tarball/master")
+    (fetchTarball "https://github.com/ryzengrind/nixos-vscode-server/tarball/master")
   ];
 
   services.vscode-server.enable = true;
@@ -25,7 +25,7 @@ you'll have to manually enable the service for each user (see below).
 
 ```nix
 {
-  inputs.vscode-server.url = "github:nix-community/nixos-vscode-server";
+  inputs.vscode-server.url = "github:ryzengrind/nixos-vscode-server";
 
   outputs = { self, nixpkgs, vscode-server }: {
     nixosConfigurations.yourhostname = nixpkgs.lib.nixosSystem {
@@ -117,7 +117,7 @@ Put this code into your [home-manager](https://github.com/nix-community/home-man
 ```nix
 {
   imports = [
-    "${fetchTarball "https://github.com/msteen/nixos-vscode-server/tarball/master"}/modules/vscode-server/home.nix"
+    "${fetchTarball "https://github.com/ryzengrind/nixos-vscode-server/tarball/master"}/modules/vscode-server/home.nix"
   ];
 
   services.vscode-server.enable = true;
@@ -128,7 +128,7 @@ Put this code into your [home-manager](https://github.com/nix-community/home-man
 
 ```nix
 {
-  inputs.vscode-server.url = "github:nix-community/nixos-vscode-server";
+  inputs.vscode-server.url = "github:ryzengrind/nixos-vscode-server";
 
   outputs = { self, vscode-server, home-manager }: {
     homeConfigurations.yourhostname = home-manager.lib.homeManagerConfiguration {
@@ -258,7 +258,7 @@ trusted-public-keys = live-usb.cachix.org-1:ERUPPct0ej0N1KCDXFngwg4pNuwgY9jnm4e0
 Or you can use it for a single command:
 
 ```bash
-nix build github:nix-community/nixos-vscode-server \
+nix build github:ryzengrind/nixos-vscode-server \
   --option substituters https://live-usb.cachix.org \
   --option trusted-public-keys live-usb.cachix.org-1:ERUPPct0ej0N1KCDXFngwg4pNuwgY9jnm4e0mbWa2u4=
 ```
