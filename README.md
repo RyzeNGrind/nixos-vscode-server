@@ -14,7 +14,7 @@ you'll have to manually enable the service for each user (see below).
 ```nix
 {
   imports = [
-    (fetchTarball "https://github.com/nix-community/nixos-vscode-server/tarball/master")
+    (fetchTarball "https://github.com/ryzengrind/nixos-vscode-server/tarball/master")
   ];
 
   services.vscode-server.enable = true;
@@ -25,7 +25,7 @@ you'll have to manually enable the service for each user (see below).
 
 ```nix
 {
-  inputs.vscode-server.url = "github:nix-community/nixos-vscode-server";
+  inputs.vscode-server.url = "github:ryzengrind/nixos-vscode-server";
 
   outputs = { self, nixpkgs, vscode-server }: {
     nixosConfigurations.yourhostname = nixpkgs.lib.nixosSystem {
@@ -41,6 +41,37 @@ you'll have to manually enable the service for each user (see below).
 ```
 
 #### Enable the service
+
+##### Automatically for all users
+
+Instead of just
+```nix
+{ services.vscode-server.enable = true; }
+```
+
+use:
+```nix
+{
+  services.vscode-server = {
+    enable = true;
+    enableForUsers.enable = true;
+  };
+}
+```
+
+This will use `tmpfiles` to setup the permanent symlink described below for each regular user.
+
+If you do not wish to enable it for all users, but only for a specific subset, the list of users this will be setup for can be overridden:
+
+```nix
+{
+  services.vscode-server.enableForUsers.users = [ "alice" "bob" ];
+}
+```
+
+Note that when disabling `services.vscode-server.enableForUsers.enable`, the file that was created in the user's `.config/systemd/user` will not be cleaned up, so you will have to clean it up manually.
+
+##### Manually for each user
 
 And then enable them for the relevant users:
 
@@ -79,15 +110,36 @@ ln -sfT /run/current-system/etc/systemd/user/auto-fix-vscode-server.service ~/.c
 
 ### Home Manager
 
+#### Install as a tarball
+
 Put this code into your [home-manager](https://github.com/nix-community/home-manager) configuration i.e. in `~/.config/nixpkgs/home.nix`:
 
 ```nix
 {
   imports = [
-    "${fetchTarball "https://github.com/msteen/nixos-vscode-server/tarball/master"}/modules/vscode-server/home.nix"
+    "${fetchTarball "https://github.com/ryzengrind/nixos-vscode-server/tarball/master"}/modules/vscode-server/home.nix"
   ];
 
   services.vscode-server.enable = true;
+}
+```
+
+#### Install as a flake
+
+```nix
+{
+  inputs.vscode-server.url = "github:ryzengrind/nixos-vscode-server";
+
+  outputs = { self, vscode-server, home-manager }: {
+    homeConfigurations.yourhostname = home-manager.lib.homeManagerConfiguration {
+      modules = [
+        vscode-server.homeModules.default
+        ({ config, pkgs, ... }: {
+          services.vscode-server.enable = true;
+        })
+      ];
+    };
+  };
 }
 ```
 
@@ -171,6 +223,52 @@ The goal of this project is to make VS Code server work with NixOS, anything mor
     # ...
   '';
 }
+```
+
+## Binary Cache
+
+A binary cache is available to speed up installation by avoiding local rebuilds. To use it, add the following to your Nix configuration:
+
+### For NixOS (configuration.nix)
+
+```nix
+{
+  nix = {
+    settings = {
+      substituters = [
+        "https://live-usb.cachix.org"
+      ];
+      trusted-public-keys = [
+        "live-usb.cachix.org-1:ERUPPct0ej0N1KCDXFngwg4pNuwgY9jnm4e0mbWa2u4="
+      ];
+    };
+  };
+}
+```
+
+### For non-NixOS or per-project use
+
+For non-NixOS systems or to use the cache for a specific project, you can add the following to your `~/.config/nix/nix.conf`:
+
+```
+substituters = https://live-usb.cachix.org
+trusted-public-keys = live-usb.cachix.org-1:ERUPPct0ej0N1KCDXFngwg4pNuwgY9jnm4e0mbWa2u4=
+```
+
+Or you can use it for a single command:
+
+```bash
+nix build github:ryzengrind/nixos-vscode-server \
+  --option substituters https://live-usb.cachix.org \
+  --option trusted-public-keys live-usb.cachix.org-1:ERUPPct0ej0N1KCDXFngwg4pNuwgY9jnm4e0mbWa2u4=
+```
+
+### With Cachix client
+
+If you have the Cachix client installed, you can enable the cache with:
+
+```bash
+cachix use live-usb
 ```
 
 ## Troubleshooting
