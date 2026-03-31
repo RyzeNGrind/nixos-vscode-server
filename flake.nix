@@ -11,10 +11,14 @@
     flake-utils,
   }:
     {
-      nixosModule = self.nixosModules.default; # Deprecrated, but perhaps still in use.
+      # Primary modern outputs
       nixosModules.default = import ./modules/vscode-server;
-      nixosModules.home = self.homeModules.default; # Backwards compatiblity.
-      homeModules.default = import ./modules/vscode-server/home.nix; # Consistent with homeConfigurations.
+      homeModules.default = import ./modules/vscode-server/home.nix;
+      
+      # Backwards compatibility attributes - these will still produce deprecation warnings
+      # from Nix itself, but will continue to work
+      nixosModule = self.nixosModules.default;
+      nixosModules.home = self.homeModules.default;
     }
     // (let
       inherit (flake-utils.lib) defaultSystems eachSystem;
